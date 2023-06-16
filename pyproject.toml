@@ -1,0 +1,22 @@
+[tool.poetry]
+name = "optimusprime"
+version = "0.1.0"
+description = ""
+authors = ["make.oynoshev@gmail.com"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.10"
+fastapi = "^0.97.0"
+sqlmodel = "^0.0.8"
+websockets = "^11.0.3"
+uvicorn = "^0.22.0"
+pydantic = {extras = ["dotenv"], version = "^1.10.9"}
+ruff = "^0.0.272"
+grpcio = "^1.54.2"
+grpcio-tools = "^1.54.2"
+psycopg2 = "^2.9.6"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
