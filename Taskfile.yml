@@ -1,0 +1,17 @@
+version: '3'
+
+env:
+  UNICRON_OUT: 'app/grpc/unicron'
+  UNICRON_GRPC_OUT: 'app/grpc/unicron'
+
+dotenv: ['.env']
+
+tasks:
+  unicron_proto:
+    cmds:
+      - python3 -m grpc_tools.protoc unicron.proto 
+        --proto_path=. 
+        --python_out=$UNICRON_OUT --grpc_python_out=$UNICRON_GRPC_OUT
+  check:
+    cmds:
+      - ruff check --fix .
