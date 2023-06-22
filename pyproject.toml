@@ -16,6 +16,7 @@ ruff = "^0.0.272"
 grpcio = "^1.54.2"
 grpcio-tools = "^1.54.2"
 psycopg2 = "^2.9.6"
+funcy = "^2.0"
 
 [tool.ruff]
 select = [
