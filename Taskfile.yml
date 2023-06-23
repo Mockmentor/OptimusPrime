@@ -12,6 +12,28 @@ tasks:
       - python3 -m grpc_tools.protoc unicron.proto 
         --proto_path=. 
         --python_out=$UNICRON_OUT --grpc_python_out=$UNICRON_GRPC_OUT
+  
+  install_requirenments:
+    cmds:
+      - pip install poetry
+      - poetry install
+      
   check:
     cmds:
       - ruff check --fix .
+
+  run_db:
+    cmds:
+      - docker run
+        --name optimusPrimeDB
+        -e POSTGRES_PASSWORD=$DB_PASSWORD  
+        -e POSTGRES_USER=$DB_USER
+        -p 5432:5432 -d postgres 
+      - docker exec optimusPrimeDB bash 
+        -c "sleep 1 && createdb -U $DB_USER $DB_NAME"
+      - python3 -m app.db
+      - mkdir $AUDIO_FILES_DIR
+  run:
+    cmds:
+      - task: run_db
+      - uvicorn app.api.api:app --host $OPTIMUS_HOST --port $OPTIMUS_PORT --reload
