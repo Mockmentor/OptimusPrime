@@ -1,6 +1,7 @@
 from uuid import UUID
 
 from fastapi import FastAPI, WebSocket
+from fastapi.middleware.cors import CORSMiddleware
 
 from app.models import Message, Question, Room, Topic
 from app.services import (
@@ -29,6 +30,13 @@ from .schemas import (
 )
 
 app = FastAPI()
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 
 @app.get('/topics')

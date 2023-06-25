@@ -32,7 +32,7 @@ tasks:
       - docker exec optimusPrimeDB bash 
         -c "sleep 1 && createdb -U $DB_USER $DB_NAME"
       - python3 -m app.db
-      - mkdir $AUDIO_FILES_DIR
+
   run:
     cmds:
       - task: run_db
