@@ -10,6 +10,8 @@ services:
       - 8000:$OPTIMUS_PORT
     depends_on:
       - optimus_prime_db
+    volumes:
+      - ./audio_files:$AUDIO_FILES_DIR
 
   optimus_prime_db:
     image: postgres
