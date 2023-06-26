@@ -1,0 +1,29 @@
+version: "3"
+
+services:
+  optimus_prime:
+    build: .
+    container_name: optimus_prime
+    env_file:
+      - .env
+    ports:
+      - 8000:$OPTIMUS_PORT
+    depends_on:
+      - optimus_prime_db
+
+  optimus_prime_db:
+    image: postgres
+    container_name: optimus_prime_db
+    env_file:
+      - .env
+    environment:
+      - POSTGRES_PASSWORD=$DB_PASSWORD
+      - POSTGRES_USER=$DB_USER
+      - POSTGRES_DB=$DB_NAME
+      - POSTGRES_PORT=$DB_PORT
+    volumes:
+      - optimus_prime_data:/var/lib/postgresql/data:cached
+
+volumes:
+  optimus_prime_data:
+    external: false

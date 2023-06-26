@@ -5,6 +5,5 @@ from app.models import SQLModel
 
 engine = create_engine(settings.db_url, echo=settings.db_echo_sql)
 
+SQLModel.metadata.create_all(engine)
 
-if __name__ == '__main__':
-    SQLModel.metadata.create_all(engine)
