@@ -3,13 +3,14 @@ from uuid import UUID
 from fastapi import FastAPI, WebSocket
 from fastapi.middleware.cors import CORSMiddleware
 
-from app.models import Message, Question, Room, Topic
+from app.models import Answer, Message, Question, Room, Topic
 from app.services import (
+    create_answer,
     create_message,
     create_question,
     create_room,
     create_topic,
-    get_answers_by_question_id,
+    get_answers,
     get_message_by_uuid,
     get_message_similarity,
     get_question_by_id,
@@ -22,6 +23,7 @@ from app.services import (
 from app.utils import load_audio
 
 from .schemas import (
+    CreateAnswerRequest,
     CreateQuestionRequest,
     CreateRoomRequest,
     CreateTopicRequest,
@@ -68,6 +70,16 @@ async def edit_question(
     return update_question_by_id(id=question_id, **question_request.dict())
 
 
+@app.get('/answers/')
+async def fetch_answers(question_id: int | None) -> list[Answer]:
+    return get_answers(question_id=question_id)
+
+
+@app.post('/answers/')
+async def insert_answer(answer_request: CreateAnswerRequest) -> Answer:
+    return create_answer(**answer_request.dict())
+
+
 @app.get('/messages/{message_uuid}')
 async def fetch_message(message_uuid: UUID) -> Message:
     return get_message_by_uuid(message_uuid)
@@ -84,7 +96,7 @@ async def ws_room(room_uuid: UUID, websocket: WebSocket):
 
     room = get_room_by_uuid(room_uuid)
     question = get_random_question_by_topic_id(room.topic_id)
-    answers = get_answers_by_question_id(question.id)
+    answers = get_answers(question_id=question.id)
 
     message = create_message(room_uuid=room_uuid, text=question.text)
     room_message = RoomMessage(

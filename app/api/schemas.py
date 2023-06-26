@@ -16,6 +16,11 @@ class CreateQuestionRequest(BaseModel):
     text: str
 
 
+class CreateAnswerRequest(BaseModel):
+    question_id: int
+    text: str
+
+
 class UpdateQuestionRequest(BaseModel):
     topic_id: int
     text: str

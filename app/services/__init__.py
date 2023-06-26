@@ -1,5 +1,5 @@
 
-from .answers import create_answer, get_answer_by_id, get_answers_by_question_id
+from .answers import create_answer, get_answer_by_id, get_answers
 from .messages import create_message, get_message_by_uuid, get_message_similarity
 from .questions import (
     create_question,
