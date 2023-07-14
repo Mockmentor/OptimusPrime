@@ -51,7 +51,7 @@ def get_question_by_id(id: int) -> Question | None:
 
 def get_questions_by_topic_id(topic_id: int) -> list[Question] | None:
     with Session(engine) as session:
-        statement = select(Question).where(topic_id==topic_id)
+        statement = select(Question).where(Question.topic_id == topic_id)
         return session.exec(statement).all()
 
 
