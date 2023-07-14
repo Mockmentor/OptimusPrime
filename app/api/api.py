@@ -127,7 +127,7 @@ async def ws_room(room_uuid: UUID, websocket: WebSocket):
         )
         similarity = await get_message_similarity(message, answers)
         # similarity = 0.8
-        message = websocket.send_text(f'Your answer\'s correctness {similarity}')
+        # message = await websocket.send_text(f'Your answer\'s correctness {similarity}')
 
     except ValueError as err:
         await websocket.send_json({'error': str(err)})
