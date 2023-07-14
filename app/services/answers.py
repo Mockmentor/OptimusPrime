@@ -23,6 +23,6 @@ def get_answers(question_id: int | None = None) -> list[Answer]:
         statement = select(Answer)
 
         if question_id:
-            statement = statement.where(question_id=question_id)
+            statement = statement.where(question_id==question_id)
 
         return session.exec(statement).all()

@@ -30,6 +30,7 @@ class RoomMessage(BaseModel):
     uuid: UUID | None = None
     text: str | None = None
     audio: bytes | None = None
+    type: str
 
     def validate(self):
         super.validate()

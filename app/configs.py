@@ -9,7 +9,7 @@ class Settings(BaseSettings):
     audio_files_format: str = 'wav'
 
     unicron_host: str = '0.0.0.0'
-    unicron_port: int = 8000
+    unicron_port: int = 9000
 
     class Config:
         env_file = '.env'

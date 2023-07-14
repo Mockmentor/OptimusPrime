@@ -31,6 +31,9 @@ from .schemas import (
     UpdateQuestionRequest,
 )
 
+import time
+import json
+
 app = FastAPI()
 
 app.add_middleware(
@@ -102,24 +105,30 @@ async def ws_room(room_uuid: UUID, websocket: WebSocket):
     room_message = RoomMessage(
         uuid=message.uuid,
         text=message.text,
-        audio=load_audio(message.audio_file_name)
+        type="websocket.send"
+        # audio=load_audio(message.audio_file_name)
     )
 
     await websocket.send(room_message.dict())
 
-    while True:
-        ws_message = await websocket.receive()
-        try:
-            room_message = RoomMessage(ws_message.dict())
-            message = create_message(
-                uuid=room_message.uuid,
-                text=room_message.text,
-                audio=room_message.audio,
-                room_uuid=room_uuid
-            )
-            similarity = get_message_similarity(message, answers)
-            message = websocket.send_text(f'You answers correctness {similarity}')
+    # while True:
+    ws_message = await websocket.receive()
+    try:
+        text = ws_message['text']
+        # message = await websocket.send_text(f'Your answer\'s correctness [{text}]')
 
-        except ValueError as err:
-            await websocket.send_json({'error': str(err)})
+        # room_message = RoomMessage(ws_message.dict())
+        room_message = RoomMessage(text=text, type="websocket.send")
+        message = create_message(
+            uuid=room_message.uuid,
+            text=room_message.text,
+            audio=room_message.audio,
+            room_uuid=room_uuid,
+        )
+        similarity = await get_message_similarity(message, answers)
+        # similarity = 0.8
+        message = websocket.send_text(f'Your answer\'s correctness {similarity}')
+
+    except ValueError as err:
+        await websocket.send_json({'error': str(err)})
 

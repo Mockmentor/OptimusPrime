@@ -21,9 +21,9 @@ def create_message(
     stub = get_unicron_stub()
 
     # get audio from text
-    if not audio:
-        request = unicron_grpc_messages.AudilizeRequest(text=text)
-        audio = stub.audiolize(request).audio
+    # if not audio:
+    #     request = unicron_grpc_messages.AudilizeRequest(text=text)
+    #     audio = stub.audiolize(request).audio
 
     # get text from audio
     if not text:
@@ -51,7 +51,9 @@ def get_message_by_uuid(uuid: UUID) -> Message | None:
 
 
 def get_message_similarity(message: Message, answers: list[Answer]) -> float:
-    answers_text = lpluck('text', answers)
+    # answers_text = lpluck('text', answers)
+    answers_text = {x.text: x for x in answers}
+
     request = unicron_grpc_messages.SimilarityRequest(
         text=message.text, answers=answers_text
     )
