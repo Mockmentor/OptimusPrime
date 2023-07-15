@@ -9,15 +9,15 @@ dotenv: ['.env']
 tasks:
   unicron_proto:
     cmds:
-      - python3 -m grpc_tools.protoc unicron.proto 
-        --proto_path=. 
+      - python3 -m grpc_tools.protoc unicron.proto
+        --proto_path=.
         --python_out=$UNICRON_OUT --grpc_python_out=$UNICRON_GRPC_OUT
 
   install_requirenments:
     cmds:
       - pip install poetry
       - poetry install
-      
+
   check:
     cmds:
       - ruff check --fix .
@@ -37,10 +37,9 @@ tasks:
 
   stop:
     cmds:
-      - docker-compose down
+      - docker-compose down -t 5
 
   restart:
     cmds:
       - task: stop
       - task: run
-    

@@ -19,6 +19,7 @@ from app.services import (
     get_room_by_uuid,
     get_topics,
     update_question_by_id,
+    get_questions_by_topic_id,
 )
 from app.utils import load_audio
 
@@ -98,10 +99,44 @@ async def ws_room(room_uuid: UUID, websocket: WebSocket):
     await websocket.accept()
 
     room = get_room_by_uuid(room_uuid)
-    question = get_random_question_by_topic_id(room.topic_id)
-    answers = get_answers(question_id=question.id)
+    questions = get_questions_by_topic_id(room.topic_id)
 
-    message = create_message(room_uuid=room_uuid, text=question.text)
+    while(len(questions) != 0):
+        time.sleep(1)
+        
+        # question = get_random_question_by_topic_id(room.topic_id)
+        question = questions.pop()
+
+        answers = get_answers(question_id=question.id)
+
+        message = create_message(room_uuid=room_uuid, text=question.text)
+        room_message = RoomMessage(
+            uuid=message.uuid,
+            text=message.text,
+            type="websocket.send"
+            # audio=load_audio(message.audio_file_name)
+        )
+
+        await websocket.send(room_message.dict())
+
+        ws_message = await websocket.receive()
+        try:
+            text = ws_message['text']
+            room_message = RoomMessage(text=text, type="websocket.send")
+            message = create_message(
+                uuid=room_message.uuid,
+                text=room_message.text,
+                audio=room_message.audio,
+                room_uuid=room_uuid,
+            )
+            similarity = get_message_similarity(message, answers)
+            message = await websocket.send_text(f'Your answer\'s correctness {round(similarity, 3)}')
+
+        except ValueError as err:
+            await websocket.send_json({'error': str(err)})
+    
+    final_text = "You answered all questions! Well done!"
+    message = create_message(room_uuid=room_uuid, text=final_text)
     room_message = RoomMessage(
         uuid=message.uuid,
         text=message.text,
@@ -110,25 +145,5 @@ async def ws_room(room_uuid: UUID, websocket: WebSocket):
     )
 
     await websocket.send(room_message.dict())
-
-    # while True:
-    ws_message = await websocket.receive()
-    try:
-        text = ws_message['text']
-        # message = await websocket.send_text(f'Your answer\'s correctness [{text}]')
-
-        # room_message = RoomMessage(ws_message.dict())
-        room_message = RoomMessage(text=text, type="websocket.send")
-        message = create_message(
-            uuid=room_message.uuid,
-            text=room_message.text,
-            audio=room_message.audio,
-            room_uuid=room_uuid,
-        )
-        similarity = get_message_similarity(message, answers)
-        # similarity = 0.8
-        message = await websocket.send_text(f'Your answer\'s correctness {similarity}')
-
-    except ValueError as err:
-        await websocket.send_json({'error': str(err)})
+    websocket.close()
 
