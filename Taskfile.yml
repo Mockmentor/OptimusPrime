@@ -37,7 +37,7 @@ tasks:
 
   stop:
     cmds:
-      - docker-compose down -t 5
+      - docker-compose down -t 3
 
   restart:
     cmds:

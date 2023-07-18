@@ -34,6 +34,8 @@ from .schemas import (
 
 import time
 import json
+from app.grpc.unicron import get_unicron_stub
+from app.grpc.unicron import unicron_pb2 as unicron_grpc_messages
 
 app = FastAPI()
 
@@ -117,24 +119,72 @@ async def ws_room(room_uuid: UUID, websocket: WebSocket):
             # audio=load_audio(message.audio_file_name)
         )
 
-        await websocket.send(room_message.dict())
+        msg = {}
+        msg['mtype'] = "question"
+        msg['text'] = message.text
+        json_data = json.dumps(msg)
+        message = await websocket.send_text(json_data)
+        # await websocket.send(room_message.dict())
 
         ws_message = await websocket.receive()
-        try:
-            text = ws_message['text']
-            room_message = RoomMessage(text=text, type="websocket.send")
-            message = create_message(
-                uuid=room_message.uuid,
-                text=room_message.text,
-                audio=room_message.audio,
-                room_uuid=room_uuid,
-            )
-            similarity = get_message_similarity(message, answers)
-            message = await websocket.send_text(f'Your answer\'s correctness {round(similarity, 3)}')
+        
+        if("text" in ws_message):
+            try:
+                text = ws_message['text']
+                room_message = RoomMessage(text=text, type="websocket.send")
+                message = create_message(
+                    uuid=room_message.uuid,
+                    text=room_message.text,
+                    audio=room_message.audio,
+                    room_uuid=room_uuid,
+                )
+                similarity = get_message_similarity(text, answers)
 
-        except ValueError as err:
-            await websocket.send_json({'error': str(err)})
-    
+                msg = {}
+                msg['mtype'] = "correctness"
+                msg['text'] = f'Your answer\'s correctness: {round(similarity, 3)}'
+                json_data = json.dumps(msg)
+                message = await websocket.send_text(json_data)
+                
+                # message = await websocket.send_text(f'Your answer\'s correctness {round(similarity, 3)}')
+
+            except ValueError as err:
+                await websocket.send_json({'error': str(err)})
+        
+        elif("bytes" in ws_message):
+            try:
+                b_bytes = ws_message['bytes'] # <class 'bytes'>
+                request = unicron_grpc_messages.TextifyRequest(audio=b_bytes)
+                text_obj = get_unicron_stub().textify(request)
+
+                text = text_obj.text
+                # text = str(text_obj)
+                msg = {}
+                msg['mtype'] = "textify"
+                msg['text'] = text
+                json_data = json.dumps(msg)
+                message = await websocket.send_text(json_data)
+                
+                room_message = RoomMessage(text=text, type="websocket.send")
+                message = create_message(
+                    uuid=room_message.uuid,
+                    text=room_message.text,
+                    audio=room_message.audio,
+                    room_uuid=room_uuid,
+                )
+
+
+                similarity = get_message_similarity(text, answers)
+                msg = {}
+                msg['mtype'] = "correctness"
+                msg['text'] = f'Your answer\'s correctness: {round(similarity, 3)}'
+                json_data = json.dumps(msg)
+                message = await websocket.send_text(json_data)
+                # message = await websocket.send_text(f'Your answer\'s correctness {round(similarity, 3)}')
+
+            except ValueError as err:
+                await websocket.send_json({'error': str(err)})
+
     final_text = "You answered all questions! Well done!"
     message = create_message(room_uuid=room_uuid, text=final_text)
     room_message = RoomMessage(
