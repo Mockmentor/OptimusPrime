@@ -2,6 +2,7 @@ from uuid import UUID
 
 from fastapi import FastAPI, WebSocket
 from fastapi.middleware.cors import CORSMiddleware
+# from fastapi.middleware.httpsredirect import HTTPSRedirectMiddleware
 
 from app.models import Answer, Message, Question, Room, Topic
 from app.services import (
@@ -37,15 +38,18 @@ import json
 from app.grpc.unicron import get_unicron_stub
 from app.grpc.unicron import unicron_pb2 as unicron_grpc_messages
 
-app = FastAPI()
+# app = FastAPI()
+app = FastAPI(ssl_keyfile="/etc/letsencrypt/live/mockmentor.ru/privkey.pem", ssl_certfile="/etc/letsencrypt/live/mockmentor.ru/fullchain.pem")
 
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
+    # allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
+# app.add_middleware(HTTPSRedirectMiddleware)
 
 @app.get('/topics')
 async def fetch_topics() -> list[Topic]:

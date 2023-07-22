@@ -1,3 +1,24 @@
+-- drop table if exists answer;
+-- drop table if exists question;
+-- drop table if exists topic;
+
+CREATE TABLE topic (
+    id SERIAL PRIMARY KEY,
+    name TEXT NOT NULL
+);
+
+CREATE TABLE question (
+    id int PRIMARY KEY,
+    text TEXT NOT NULL,
+    topic_id INTEGER REFERENCES topic(id)
+);
+
+CREATE TABLE answer (
+    id SERIAL PRIMARY KEY,
+    text TEXT NOT NULL,
+    question_id INTEGER REFERENCES question(id)
+);
+
 insert into topic (name) values ('Programming Theory');
 insert into topic (name) values ('Machine Learning');
 insert into topic (name) values ('Databases');
@@ -837,8 +858,8 @@ values ('Dynamic memory allocations help prevent memory leaks and improve memory
 
 -- select * from topic;
 
-with get_count as (select distinct topic.name, count(question.id) over(partition by topic.id)
-from topic join question on topic.id = question.topic_id 
-order by topic.name)
-select *, sum(count) over()
-from get_count;
+-- with get_count as (select distinct topic.name, count(question.id) over(partition by topic.id)
+-- from topic join question on topic.id = question.topic_id 
+-- order by topic.name)
+-- select *, sum(count) over()
+-- from get_count;
