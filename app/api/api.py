@@ -38,8 +38,8 @@ import json
 from app.grpc.unicron import get_unicron_stub
 from app.grpc.unicron import unicron_pb2 as unicron_grpc_messages
 
-# app = FastAPI()
-app = FastAPI(ssl_keyfile="/etc/letsencrypt/live/mockmentor.ru/privkey.pem", ssl_certfile="/etc/letsencrypt/live/mockmentor.ru/fullchain.pem")
+app = FastAPI()
+# app = FastAPI(ssl_keyfile="/etc/letsencrypt/live/mockmentor.ru/privkey.pem", ssl_certfile="/etc/letsencrypt/live/mockmentor.ru/fullchain.pem")
 
 app.add_middleware(
     CORSMiddleware,

@@ -29,6 +29,7 @@ services:
       - POSTGRES_PORT=$DB_PORT
     volumes:
       - optimus_prime_data:/var/lib/postgresql/data:cached
+      - .:/docker-entrypoint-initdb.d
     networks:
       - mynetwork
 
